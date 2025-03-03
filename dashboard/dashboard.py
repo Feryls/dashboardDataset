@@ -13,7 +13,7 @@ st.set_page_config(
 # Load dataset
 @st.cache_data
 def load_data():
-    data = pd.read_csv("/mnt/data/data_day (1).csv")
+    data = pd.read_csv("/mnt/data/data_day.csv")
     return data
 
 data = load_data()
