@@ -1,56 +1,63 @@
-import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import streamlit as st
+from babel.numbers import format_currency
+
+sns.set(style='dark')
 
 # Load dataset
 df = pd.read_csv("/mnt/data/data_day (1).csv")
 
-df['dteday'] = pd.to_datetime(df['dteday'])
+# Pastikan kolom tanggal dalam format datetime
+df['order_date'] = pd.to_datetime(df['order_date'])
 
-# Sidebar
-st.sidebar.header("Filter Data")
+# Sidebar untuk rentang waktu
+st.sidebar.header("Filter Waktu")
 start_date, end_date = st.sidebar.date_input(
-    "Rentang Tanggal", [df['dteday'].min(), df['dteday'].max()],
-    min_value=df['dteday'].min(), max_value=df['dteday'].max()
+    "Pilih Rentang Waktu", [df['order_date'].min(), df['order_date'].max()]
 )
-filtered_df = df[(df['dteday'] >= pd.Timestamp(start_date)) & (df['dteday'] <= pd.Timestamp(end_date))]
 
-# Dashboard Title
-st.title("Dashboard Peminjaman Sepeda")
+# Filter data berdasarkan rentang waktu
+filtered_df = df[(df['order_date'] >= str(start_date)) & (df['order_date'] <= str(end_date))]
 
-# Metric
-st.subheader("Ringkasan Data")
-col1, col2, col3 = st.columns(3)
-col1.metric("Total Peminjaman", filtered_df['cnt'].sum())
-col2.metric("Peminjaman oleh Pengguna Terdaftar", filtered_df['registered'].sum())
-col3.metric("Peminjaman oleh Pengguna Biasa", filtered_df['casual'].sum())
+# Analisis jumlah pesanan per hari
+daily_orders_df = filtered_df.resample(rule='D', on='order_date').agg({
+    "order_id": "nunique",
+    "total_price": "sum"
+}).reset_index()
+daily_orders_df.rename(columns={
+    "order_id": "order_count",
+    "total_price": "revenue"
+}, inplace=True)
 
-# Grafik Tren Harian
-st.subheader("Tren Peminjaman Harian")
+# Tampilkan metrik utama
+st.header("Dashboard Analisis Data")
+st.subheader("Ringkasan Penjualan")
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric("Total Pesanan", daily_orders_df['order_count'].sum())
+
+with col2:
+    total_revenue = format_currency(daily_orders_df['revenue'].sum(), "IDR", locale='id_ID')
+    st.metric("Total Pendapatan", total_revenue)
+
+# Visualisasi pesanan harian
+st.subheader("Jumlah Pesanan Harian")
 fig, ax = plt.subplots(figsize=(12, 6))
-ax.plot(filtered_df['dteday'], filtered_df['cnt'], marker='o', linestyle='-')
+ax.plot(daily_orders_df["order_date"], daily_orders_df["order_count"], marker='o', color='b')
 ax.set_xlabel("Tanggal")
-ax.set_ylabel("Jumlah Peminjaman")
-ax.set_title("Tren Peminjaman Harian")
+ax.set_ylabel("Jumlah Pesanan")
 st.pyplot(fig)
 
-# Grafik Peminjaman Berdasarkan Musim
-st.subheader("Peminjaman Berdasarkan Musim")
-fig, ax = plt.subplots(figsize=(8, 6))
-sns.barplot(x=filtered_df['season'], y=filtered_df['cnt'], ax=ax)
-ax.set_xlabel("Musim")
-ax.set_ylabel("Jumlah Peminjaman")
-ax.set_title("Jumlah Peminjaman Sepeda Berdasarkan Musim")
+# Produk dengan penjualan terbaik
+st.subheader("Produk dengan Penjualan Terbaik")
+sum_order_items_df = filtered_df.groupby("product_name")["quantity_x"].sum().reset_index()
+sum_order_items_df = sum_order_items_df.sort_values(by="quantity_x", ascending=False).head(5)
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.barplot(y=sum_order_items_df['product_name'], x=sum_order_items_df['quantity_x'], ax=ax, palette='Blues_r')
+ax.set_xlabel("Jumlah Terjual")
 st.pyplot(fig)
 
-# Grafik Peminjaman Berdasarkan Hari Kerja
-st.subheader("Peminjaman Berdasarkan Hari Kerja")
-fig, ax = plt.subplots(figsize=(8, 6))
-sns.barplot(x=filtered_df['workingday'], y=filtered_df['cnt'], ax=ax)
-ax.set_xlabel("Hari Kerja (0 = Libur, 1 = Kerja)")
-ax.set_ylabel("Jumlah Peminjaman")
-ax.set_title("Jumlah Peminjaman Sepeda Berdasarkan Hari Kerja")
-st.pyplot(fig)
-
-st.caption("Dashboard dibuat dengan Streamlit")
+st.caption("Dibuat dengan Streamlit")
