@@ -1,62 +1,76 @@
 import pandas as pd
+import streamlit as st
 import matplotlib.pyplot as plt
 import seaborn as sns
-import streamlit as st
 
-sns.set(style='dark')
-
-# Load dataset
-df = pd.read_csv("/mnt/data/data_day(1).csv")
-
-# Pastikan kolom tanggal dalam format datetime
-df['order_date'] = pd.to_datetime(df['order_date'])
-
-# Sidebar untuk rentang waktu
-st.sidebar.header("Filter Waktu")
-start_date, end_date = st.sidebar.date_input(
-    "Pilih Rentang Waktu", [df['order_date'].min(), df['order_date'].max()]
+# Konfigurasi halaman
+st.set_page_config(
+    page_title="Dashboard Analisis Data",
+    page_icon="📊",
+    layout="wide"
 )
 
-# Filter data berdasarkan rentang waktu
-filtered_df = df[(df['order_date'] >= str(start_date)) & (df['order_date'] <= str(end_date))]
+# Load dataset
+@st.cache_data
+def load_data():
+    data = pd.read_csv("/mnt/data/data_day (1).csv")
+    return data
 
-# Analisis jumlah pesanan per hari
-daily_orders_df = filtered_df.resample(rule='D', on='order_date').agg({
-    "order_id": "nunique",
-    "total_price": "sum"
-}).reset_index()
-daily_orders_df.rename(columns={
-    "order_id": "order_count",
-    "total_price": "revenue"
-}, inplace=True)
+data = load_data()
 
-# Tampilkan metrik utama
-st.header("Dashboard Analisis Data")
-st.subheader("Ringkasan Penjualan")
-col1, col2 = st.columns(2)
+# Judul Dashboard
+st.title("Dashboard Analisis Data 📊")
+st.write("Dashboard ini menampilkan analisis berdasarkan data yang diberikan.")
 
+# Sidebar untuk filter
+st.sidebar.header("📊 Filter Data")
+
+# Menampilkan daftar kolom yang bisa difilter
+column_filter = st.sidebar.selectbox("Pilih Kolom untuk Filter:", options=data.columns)
+
+unique_values = data[column_filter].unique()
+selected_values = st.sidebar.multiselect(f"Pilih Nilai dari {column_filter}:", options=unique_values, default=unique_values)
+
+# Filter data
+filtered_data = data[data[column_filter].isin(selected_values)]
+
+# Tampilkan ringkasan statistik sederhana
+col1, col2, col3 = st.columns(3)
 with col1:
-    st.metric("Total Pesanan", daily_orders_df['order_count'].sum())
-
+    st.metric("Total Data", f"{len(filtered_data):,}")
 with col2:
-    total_revenue = format_currency(daily_orders_df['revenue'].sum(), "IDR", locale='id_ID')
-    st.metric("Total Pendapatan", total_revenue)
+    st.metric("Rata-rata", f"{filtered_data.mean(numeric_only=True).mean():.2f}")
+with col3:
+    st.metric("Maksimum", f"{filtered_data.max(numeric_only=True).max():.2f}")
 
-# Visualisasi pesanan harian
-st.subheader("Jumlah Pesanan Harian")
-fig, ax = plt.subplots(figsize=(12, 6))
-ax.plot(daily_orders_df["order_date"], daily_orders_df["order_count"], marker='o', color='b')
-ax.set_xlabel("Tanggal")
-ax.set_ylabel("Jumlah Pesanan")
-st.pyplot(fig)
+# Buat dua kolom untuk visualisasi
+graph_col1, graph_col2 = st.columns(2)
 
-# Produk dengan penjualan terbaik
-st.subheader("Produk dengan Penjualan Terbaik")
-sum_order_items_df = filtered_df.groupby("product_name")["quantity_x"].sum().reset_index()
-sum_order_items_df = sum_order_items_df.sort_values(by="quantity_x", ascending=False).head(5)
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.barplot(y=sum_order_items_df['product_name'], x=sum_order_items_df['quantity_x'], ax=ax, palette='Blues_r')
-ax.set_xlabel("Jumlah Terjual")
-st.pyplot(fig)
+with graph_col1:
+    st.subheader("📊 Histogram Data")
+    selected_numeric_col = st.selectbox("Pilih Kolom Numerik:", options=data.select_dtypes(include=['number']).columns)
+    fig, ax = plt.subplots()
+    sns.histplot(filtered_data[selected_numeric_col], bins=20, kde=True, ax=ax)
+    ax.set_title(f"Distribusi {selected_numeric_col}")
+    st.pyplot(fig)
 
-st.caption("Dibuat dengan Streamlit")
+with graph_col2:
+    st.subheader("📊 Scatter Plot")
+    x_axis = st.selectbox("Pilih X Axis:", options=data.select_dtypes(include=['number']).columns, index=0)
+    y_axis = st.selectbox("Pilih Y Axis:", options=data.select_dtypes(include=['number']).columns, index=1)
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=filtered_data, x=x_axis, y=y_axis, alpha=0.5)
+    ax.set_title(f"Hubungan antara {x_axis} dan {y_axis}")
+    st.pyplot(fig)
+
+# Tampilkan tabel data
+st.subheader("📋 Ringkasan Data")
+st.dataframe(filtered_data.head(10), use_container_width=True)
+
+# Tombol unduh data
+st.sidebar.download_button(
+    label="📥 Unduh Data (CSV)",
+    data=filtered_data.to_csv(index=False),
+    file_name="filtered_data.csv",
+    mime="text/csv"
+)
