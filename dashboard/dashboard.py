@@ -6,7 +6,7 @@ import streamlit as st
 sns.set(style='dark')
 
 # Load dataset
-df = pd.read_csv("/mnt/data/data_day (1).csv")
+df = pd.read_csv("/mnt/data/data_day(1).csv")
 
 # Pastikan kolom tanggal dalam format datetime
 df['order_date'] = pd.to_datetime(df['order_date'])
