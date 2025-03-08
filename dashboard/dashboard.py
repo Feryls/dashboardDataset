@@ -33,19 +33,6 @@ with st.sidebar:
         format_func=lambda x: f"Tahun {x}"
     )
 
-    # Musim Filter
-    season_map = {
-        1: "Musim Semi",
-        2: "Musim Panas",
-        3: "Musim Gugur",
-        4: "Musim Dingin"
-    }
-    season = st.selectbox(
-        "Pilih Musim",
-        options=list(season_map.keys()),
-        format_func=lambda x: season_map[x]
-    )
-
     st.markdown("---")
     st.markdown("### 📝 Pertanyaan Bisnis")
     st.markdown("""
@@ -56,11 +43,8 @@ with st.sidebar:
 # **PERTANYAAN 1: Hari Kerja vs Akhir Pekan**
 st.markdown("### 📈 Analisis Pertanyaan 1: Penyewaan Sepeda di Hari Kerja vs Akhir Pekan")
 
-# Filter data untuk pertanyaan 1 (berdasarkan tahun & musim)
-filtered_df_1 = df[
-    (df['yr'] == year - 2011) & 
-    (df['season'] == season)
-]
+# Filter data untuk pertanyaan 1 (hanya berdasarkan tahun)
+filtered_df_1 = df[df['yr'] == year - 2011]
 
 col1, col2 = st.columns([2, 1])
 
@@ -86,7 +70,7 @@ with col2:
 # **PERTANYAAN 2: Pengguna Biasa vs Member (Keseluruhan)**
 st.markdown("### 📊 Analisis Pertanyaan 2: Pola Penggunaan Pengguna Biasa vs Member (Keseluruhan)")
 
-# Filter data untuk pertanyaan 2 (hanya berdasarkan tahun, tidak musim)
+# Filter data untuk pertanyaan 2 (hanya berdasarkan tahun)
 filtered_df_2 = df[df['yr'] == year - 2011]
 
 # Kelompokkan data berdasarkan hari dalam seminggu
@@ -113,18 +97,9 @@ plt.legend()
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 st.pyplot(fig)
 
-# **Insight**
-st.markdown("""
-**📌 Insight:**  
-- **Pengguna Biasa (Casual Users)** lebih aktif di **akhir pekan**, menunjukkan tujuan rekreasi.  
-- **Member (Registered Users)** lebih banyak menggunakan sepeda di **hari kerja**, yang menunjukkan pola transportasi harian.  
-- Tren ini **konsisten sepanjang tahun**, menunjukkan bahwa pengguna biasa lebih dipengaruhi oleh hari libur dibandingkan member.  
-""")
-
-# Conclusions
+# **Kesimpulan**
 st.markdown("### 📋 Kesimpulan")
 st.markdown("""
-
 1. **Pola Penggunaan Hari Kerja vs Akhir Pekan**
    - Penyewaan lebih tinggi pada hari kerja
    - Menunjukkan penggunaan utama untuk transportasi harian
@@ -141,6 +116,7 @@ st.markdown("""
    - Sesuaikan jumlah sepeda berdasarkan pola penggunaan
 """)
 
-# Show raw data option
+# **Tampilkan Data Mentah**
+filtered_df = df[df['yr'] == year - 2011]  # Gunakan filter tahun untuk raw data
 if st.checkbox("🔍 Lihat Data Mentah"):
     st.dataframe(filtered_df)
