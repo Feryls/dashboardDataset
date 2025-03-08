@@ -121,18 +121,9 @@ st.markdown("""
 - Tren ini **konsisten sepanjang tahun**, menunjukkan bahwa pengguna biasa lebih dipengaruhi oleh hari libur dibandingkan member.  
 """)
 
-# Add overall seasonal insight
-st.markdown("""
-**Insight Musiman:**
-- Kedua tipe pengguna menunjukkan penurunan di musim dingin
-- Member memiliki pola penggunaan yang lebih konsisten
-- Cuaca sangat mempengaruhi pengguna biasa
-""")
-
 # Conclusions
 st.markdown("### 📋 Kesimpulan")
 st.markdown("""
-**Kesimpulan Utama:**
 
 1. **Pola Penggunaan Hari Kerja vs Akhir Pekan**
    - Penyewaan lebih tinggi pada hari kerja
