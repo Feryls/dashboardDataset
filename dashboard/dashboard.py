@@ -98,21 +98,36 @@ fig, ax = plt.subplots(figsize=(12, 6))
 weekday_data = filtered_df.groupby('weekday')[['casual', 'registered']].mean().reset_index()
 
 # Buat bar plot
-x = range(len(weekday_data))
-width = 0.35
+# Pastikan data tidak kosong
+if not filtered_df.empty:
+    weekday_data = filtered_df.groupby('weekday')[['casual', 'registered']].mean().reset_index()
+    
+    # Pastikan index weekday dalam urutan yang benar (0=Minggu, ..., 6=Sabtu)
+    weekday_data = weekday_data.sort_values(by='weekday')
+    
+    # Buat x-axis index
+    x = range(len(weekday_data))  # Harus sesuai dengan jumlah kategori
 
-ax.bar([i - width/2 for i in x], weekday_data['casual'], width,
-       label='Pengguna Biasa', color='royalblue')
-ax.bar([i + width/2 for i in x], weekday_data['registered'], width,
-       label='Member', color='lightcoral')
+    # Pastikan jumlah label sesuai dengan x
+    labels = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+    labels = labels[:len(x)]  # Sesuaikan jumlah label dengan x
+    
+    fig, ax = plt.subplots(figsize=(12, 6))
 
-plt.xticks(x, ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])
-plt.title('Pola Penggunaan Sepeda: Pengguna Biasa vs Member', fontsize=14)
-plt.xlabel('Hari dalam Seminggu')
-plt.ylabel('Rata-rata Jumlah Pengguna')
-plt.legend()
-plt.grid(axis='y', linestyle='--', alpha=0.7)
-st.pyplot(fig)
+    width = 0.35
+    ax.bar([i - width/2 for i in x], weekday_data['casual'], width, label='Pengguna Biasa', color='royalblue')
+    ax.bar([i + width/2 for i in x], weekday_data['registered'], width, label='Member', color='lightcoral')
+
+    plt.xticks(x, labels)  # Pastikan jumlah x sesuai dengan labels
+    plt.title('Pola Penggunaan Sepeda: Pengguna Biasa vs Member', fontsize=14)
+    plt.xlabel('Hari dalam Seminggu')
+    plt.ylabel('Rata-rata Jumlah Pengguna')
+    plt.legend()
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig)
+else:
+    st.warning("Tidak ada data yang tersedia untuk filter yang dipilih.")
+
 
 st.markdown("""
 **📌 Insight:**  
