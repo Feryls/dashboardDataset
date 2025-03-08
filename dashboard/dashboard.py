@@ -120,3 +120,38 @@ st.markdown("""
 - **Member (Registered Users)** lebih banyak menggunakan sepeda di **hari kerja**, yang menunjukkan pola transportasi harian.  
 - Tren ini **konsisten sepanjang tahun**, menunjukkan bahwa pengguna biasa lebih dipengaruhi oleh hari libur dibandingkan member.  
 """)
+
+Kesimpulan Umum:
+1. Penggunaan Sepeda Beragam Berdasarkan Hari dan Musim
+
+Pola penggunaan sepeda menunjukkan adanya perbedaan signifikan antara hari kerja dan akhir pekan.
+Pengguna biasa cenderung lebih aktif di akhir pekan, sedangkan pengguna member lebih sering menggunakan sepeda pada hari kerja.
+2. Musim Mempengaruhi Jumlah Penyewaan
+
+Pengguna biasa lebih sering menyewa sepeda di musim panas dan gugur, mungkin karena cuaca yang lebih nyaman.
+Pengguna member cenderung memiliki pola yang lebih stabil sepanjang tahun, menunjukkan bahwa mereka menggunakan sepeda sebagai alat transportasi sehari-hari.
+3. Cuaca dan Faktor Lingkungan Mempengaruhi Penyewaan
+
+Kondisi cuaca buruk (hujan atau salju) dapat menurunkan jumlah penyewaan secara signifikan.
+Faktor lain seperti kecepatan angin dan tingkat kelembaban juga bisa berpengaruh terhadap keputusan pengguna dalam menyewa sepeda.
+
+Berdasarkan analisis dataset diatas, dapat disimpulkan bahwa:
+
+Kesimpulan Berdasarkan Pertanyaan Bisnis
+1. Apakah jumlah penyewaan sepeda lebih tinggi pada hari kerja dibandingkan akhir pekan?
+
+Jawaban: Ya, dari hasil analisis, jumlah penyewaan sepeda lebih tinggi pada hari kerja dibanding akhir pekan.
+
+📌 Implikasi:
+
+Sepeda lebih banyak digunakan sebagai alat transportasi sehari-hari oleh pengguna member.
+Jika ingin meningkatkan jumlah penyewaan di akhir pekan, strategi pemasaran bisa difokuskan pada pengguna biasa, misalnya dengan menawarkan diskon atau paket sewa rekreasi.
+2. Bagaimana perbedaan pola penggunaan sepeda antara pengguna biasa dan member?
+
+Jawaban: Pengguna biasa lebih banyak menggunakan sepeda di akhir pekan dan musim panas, sedangkan pengguna member cenderung menggunakan sepeda secara stabil sepanjang minggu.
+
+📌 Implikasi:
+
+Pengguna biasa lebih dipengaruhi oleh faktor rekreasi dan cuaca.
+Penyedia layanan bisa meningkatkan layanan di akhir pekan dengan memperbanyak sepeda di lokasi wisata atau taman kota.
+Untuk pengguna member, peningkatan infrastruktur seperti jalur sepeda yang lebih baik di sekitar kantor dan sekolah bisa meningkatkan jumlah penyewaan lebih lanjut.
