@@ -33,6 +33,19 @@ with st.sidebar:
         format_func=lambda x: f"Tahun {x}"
     )
 
+    # Musim Filter
+    season_map = {
+        1: "Musim Semi",
+        2: "Musim Panas",
+        3: "Musim Gugur",
+        4: "Musim Dingin"
+    }
+    season = st.selectbox(
+        "Pilih Musim",
+        options=list(season_map.keys()),
+        format_func=lambda x: season_map[x]
+    )
+
     st.markdown("---")
     st.markdown("### 📝 Pertanyaan Bisnis")
     st.markdown("""
@@ -40,14 +53,44 @@ with st.sidebar:
     2. Bagaimana perbedaan pola penggunaan sepeda antara pengguna biasa dan member?
     """)
 
-# Filter data hanya berdasarkan tahun (tanpa musim)
-filtered_df = df[df['yr'] == year - 2011]
+# **PERTANYAAN 1: Hari Kerja vs Akhir Pekan**
+st.markdown("### 📈 Analisis Pertanyaan 1: Penyewaan Sepeda di Hari Kerja vs Akhir Pekan")
 
-# **Pertanyaan 2: Pengguna Biasa vs Member (Keseluruhan)**
+# Filter data untuk pertanyaan 1 (berdasarkan tahun & musim)
+filtered_df_1 = df[
+    (df['yr'] == year - 2011) & 
+    (df['season'] == season)
+]
+
+col1, col2 = st.columns([2, 1])
+
+with col1:
+    workingday_avg = filtered_df_1.groupby('workingday')['cnt'].mean()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(x=['Akhir Pekan', 'Hari Kerja'], y=workingday_avg.values,
+                palette=['royalblue', 'lightcoral'])
+    plt.title('Perbandingan Penyewaan Sepeda: Hari Kerja vs Akhir Pekan', fontsize=14)
+    plt.ylabel('Rata-rata Penyewaan')
+    plt.xlabel('Kategori Hari')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig)
+
+with col2:
+    st.markdown("""
+    **📌 Insight:**  
+    - Penyewaan lebih tinggi pada **hari kerja** dibanding akhir pekan.  
+    - Indikasi kuat bahwa sepeda digunakan untuk **transportasi harian (commuting)**.  
+    - **Akhir pekan** masih memiliki penggunaan yang cukup tinggi, kemungkinan besar untuk **rekreasi**.  
+    """)
+
+# **PERTANYAAN 2: Pengguna Biasa vs Member (Keseluruhan)**
 st.markdown("### 📊 Analisis Pertanyaan 2: Pola Penggunaan Pengguna Biasa vs Member (Keseluruhan)")
 
+# Filter data untuk pertanyaan 2 (hanya berdasarkan tahun, tidak musim)
+filtered_df_2 = df[df['yr'] == year - 2011]
+
 # Kelompokkan data berdasarkan hari dalam seminggu
-weekday_data = filtered_df.groupby('weekday')[['casual', 'registered']].mean().reset_index()
+weekday_data = filtered_df_2.groupby('weekday')[['casual', 'registered']].mean().reset_index()
 
 # Pastikan urutan hari benar (0 = Minggu, ..., 6 = Sabtu)
 weekday_data = weekday_data.sort_values(by='weekday')
@@ -75,5 +118,5 @@ st.markdown("""
 **📌 Insight:**  
 - **Pengguna Biasa (Casual Users)** lebih aktif di **akhir pekan**, menunjukkan tujuan rekreasi.  
 - **Member (Registered Users)** lebih banyak menggunakan sepeda di **hari kerja**, yang menunjukkan pola transportasi harian.  
-- Tren ini konsisten sepanjang tahun, menunjukkan bahwa pengguna biasa lebih dipengaruhi oleh hari libur dibandingkan member.  
+- Tren ini **konsisten sepanjang tahun**, menunjukkan bahwa pengguna biasa lebih dipengaruhi oleh hari libur dibandingkan member.  
 """)
