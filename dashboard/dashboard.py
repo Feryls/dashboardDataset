@@ -5,15 +5,15 @@ import seaborn as sns
 
 # Set page configuration
 st.set_page_config(
-    page_title="Proyek Analisis Data: Bike Sharing Dataset",
-    page_icon="🚲",
+    page_title="🚲 Analisis Data: Bike Sharing Dataset",
+    page_icon="🚴",
     layout="wide"
 )
 
-# Header section
-st.markdown('# 🚲 Analisis Data: Bike Sharing Dataset')
+# Header
+st.markdown('# 🚴‍♂️ Analisis Data: Bike Sharing Dataset')
 
-# Author information
+# Author Info
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
     st.write("👤 **Nama:** Randy")
@@ -22,29 +22,27 @@ with col2:
 with col3:
     st.write("🆔 **ID Dicoding:** MS119D5Y0656")
 
-
-# Load data
+# Load dataset
 @st.cache_data
 def load_data():
     df = pd.read_csv('dashboard/data_day.csv')
     df['dteday'] = pd.to_datetime(df['dteday'])
     return df
 
-
 df = load_data()
 
-# Sidebar
+# Sidebar Filter
 with st.sidebar:
     st.header("📊 Filter Data")
 
-    # Year filter
+    # Tahun Filter
     year = st.selectbox(
         "Pilih Tahun",
         options=[2011, 2012],
         format_func=lambda x: f"Tahun {x}"
     )
 
-    # Season filter
+    # Musim Filter
     season_map = {
         1: "Musim Semi",
         2: "Musim Panas",
@@ -68,13 +66,10 @@ with st.sidebar:
 filtered_df = df[
     (df['yr'] == year - 2011) &
     (df['season'] == season)
-    ]
+]
 
-# Main content
-st.markdown("### 📈 Analisis Pertanyaan Bisnis 1")
-st.write("Perbandingan Penyewaan: Hari Kerja vs Akhir Pekan")
-
-# Workingday vs Weekend analysis
+# **Pertanyaan 1: Hari Kerja vs Akhir Pekan**
+st.markdown("### 📈 Analisis Pertanyaan 1: Penyewaan Sepeda di Hari Kerja vs Akhir Pekan")
 col1, col2 = st.columns([2, 1])
 
 with col1:
@@ -82,26 +77,27 @@ with col1:
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.barplot(x=['Akhir Pekan', 'Hari Kerja'], y=workingday_avg.values,
                 palette=['royalblue', 'lightcoral'])
-    plt.title('Perbandingan Penyewaan Sepeda: Hari Kerja vs Akhir Pekan')
+    plt.title('Perbandingan Penyewaan Sepeda: Hari Kerja vs Akhir Pekan', fontsize=14)
     plt.ylabel('Rata-rata Penyewaan')
+    plt.xlabel('Kategori Hari')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
 with col2:
     st.markdown("""
-    **Insight:**
-    - Penyewaan lebih tinggi pada hari kerja
-    - Menunjukkan penggunaan untuk transportasi harian
-    - Pola yang konsisten untuk kebutuhan komuter
+    **📌 Insight:**  
+    - Penyewaan lebih tinggi pada **hari kerja** dibanding akhir pekan.  
+    - Indikasi kuat bahwa sepeda digunakan untuk **transportasi harian (commuting)**.  
+    - **Akhir pekan** masih memiliki penggunaan yang cukup tinggi, kemungkinan besar untuk **rekreasi**.  
     """)
 
-st.markdown("### 📊 Analisis Pertanyaan Bisnis 2")
-st.write("Pola Penggunaan: Pengguna Biasa vs Member")
+# **Pertanyaan 2: Pengguna Biasa vs Member**
+st.markdown("### 📊 Analisis Pertanyaan 2: Pola Penggunaan Pengguna Biasa vs Member")
 
-# Weekly pattern analysis using bar plot instead of line plot
 fig, ax = plt.subplots(figsize=(12, 6))
 weekday_data = filtered_df.groupby('weekday')[['casual', 'registered']].mean().reset_index()
 
-# Create bar plot
+# Buat bar plot
 x = range(len(weekday_data))
 width = 0.35
 
@@ -111,25 +107,25 @@ ax.bar([i + width/2 for i in x], weekday_data['registered'], width,
        label='Member', color='lightcoral')
 
 plt.xticks(x, ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'])
-plt.title('Pola Penggunaan Sepeda: Pengguna Biasa vs Member')
-plt.xlabel('Hari')
+plt.title('Pola Penggunaan Sepeda: Pengguna Biasa vs Member', fontsize=14)
+plt.xlabel('Hari dalam Seminggu')
 plt.ylabel('Rata-rata Jumlah Pengguna')
 plt.legend()
+plt.grid(axis='y', linestyle='--', alpha=0.7)
 st.pyplot(fig)
 
-# Add insights
 st.markdown("""
-**Insight:**
-- Member memiliki jumlah penyewaan yang lebih tinggi di hari kerja
-- Pengguna biasa menunjukkan peningkatan di akhir pekan
-- Perbedaan paling signifikan terlihat pada hari kerja
+**📌 Insight:**  
+- **Pengguna Biasa (Casual Users)** lebih aktif di **akhir pekan**, yang menunjukkan tujuan rekreasi.  
+- **Member (Registered Users)** lebih banyak menggunakan sepeda di **hari kerja**, yang menunjukkan pola transportasi harian.  
+- Peningkatan penyewaan pada **Senin-Jumat** mendukung tren bahwa **member lebih stabil** dibanding pengguna biasa.  
 """)
 
-# Seasonal analysis - Fixed to show all seasons
+# **Analisis Musim**
 st.markdown("### 🌤️ Analisis Berdasarkan Musim")
+
 col1, col2 = st.columns(2)
 
-# Create season aggregation for all seasons
 season_casual = df.groupby('season')['casual'].sum().reindex(range(1, 5))
 season_registered = df.groupby('season')['registered'].sum().reindex(range(1, 5))
 
@@ -141,13 +137,13 @@ with col1:
     plt.title('Penggunaan oleh Pengguna Biasa per Musim')
     plt.ylabel('Total Pengguna Biasa')
     plt.xticks(rotation=0)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
     st.markdown("""
-    **Insight Pengguna Biasa:**
-    - Penyewaan tertinggi pada musim panas
-    - Musim dingin menunjukkan penyewaan terendah
-    - Tren meningkat dari musim semi ke musim panas
+    **📌 Insight Pengguna Biasa:**  
+    - Penggunaan tertinggi di **musim panas**, kemungkinan karena cuaca yang mendukung.  
+    - Penyewaan **menurun drastis di musim dingin**.  
     """)
 
 with col2:
@@ -158,44 +154,23 @@ with col2:
     plt.title('Penggunaan oleh Member per Musim')
     plt.ylabel('Total Member')
     plt.xticks(rotation=0)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
     st.markdown("""
-    **Insight Member:**
-    - Pola yang lebih stabil antar musim
-    - Sedikit penurunan di musim dingin
-    - Puncak penggunaan di musim gugur
+    **📌 Insight Member:**  
+    - Pola **lebih stabil** dibanding pengguna biasa.  
+    - **Puncak penggunaan di musim gugur**, mungkin karena kondisi kerja & sekolah.  
     """)
 
-# Add overall seasonal insight
+# **Kesimpulan**
+st.markdown("### 📋 Kesimpulan Akhir")
 st.markdown("""
-**Insight Musiman:**
-- Kedua tipe pengguna menunjukkan penurunan di musim dingin
-- Member memiliki pola penggunaan yang lebih konsisten
-- Cuaca sangat mempengaruhi pengguna biasa
+1. **Hari Kerja vs Akhir Pekan:** Penyewaan lebih tinggi pada hari kerja, menunjukkan pola commuting.  
+2. **Casual vs Member:** Pengguna biasa dominan di akhir pekan, member lebih stabil sepanjang minggu.  
+3. **Musim:** Pengguna biasa dipengaruhi cuaca, sedangkan member lebih stabil sepanjang tahun.  
 """)
 
-# Conclusions
-st.markdown("### 📋 Kesimpulan")
-st.markdown("""
-**Kesimpulan Utama:**
-
-1. **Pola Penggunaan Hari Kerja vs Akhir Pekan**
-   - Penyewaan lebih tinggi pada hari kerja
-   - Menunjukkan penggunaan utama untuk transportasi harian
-   - Member lebih dominan pada hari kerja
-
-2. **Perbedaan Pola Pengguna Biasa vs Member**
-   - Pengguna biasa lebih aktif di akhir pekan
-   - Member menunjukkan penggunaan yang lebih stabil
-   - Pola musiman lebih mempengaruhi pengguna biasa
-
-3. **Implikasi Bisnis**
-   - Fokuskan promosi akhir pekan untuk pengguna biasa
-   - Tingkatkan layanan di rute komuter untuk member
-   - Sesuaikan jumlah sepeda berdasarkan pola penggunaan
-""")
-
-# Show raw data option
+# Tampilkan data mentah
 if st.checkbox("🔍 Lihat Data Mentah"):
     st.dataframe(filtered_df)
